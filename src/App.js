@@ -4,7 +4,7 @@ import './App.css';
 import BookItem from './components/BookItems/BookItem';
 import jsonData from './jsons/bookData.json'
 
-class BooksApp extends React.Component {
+class BooksApp extends React.Component<> {
     state = {
         /**
          * TODO: Instead of using this state variable to keep track of which page
@@ -28,10 +28,10 @@ class BooksApp extends React.Component {
     }
 
     render() {
-        const {booksRead, booksReading, booksToRead, books} = this.state;
+        const {booksRead, booksReading, booksToRead, books, showSearchPage} = this.state;
         return (
             <div className="app">
-                {this.state.showSearchPage ? (
+                {showSearchPage ? (
                     <div className="search-books">
                         <div className="search-books-bar">
                             <button className="close-search"
@@ -47,7 +47,6 @@ class BooksApp extends React.Component {
                   you don't find a specific author or title. Every search is limited by search terms.
                 */}
                                 <input type="text" placeholder="Search by title or author"/>
-
                             </div>
                         </div>
                         <div className="search-books-results">
