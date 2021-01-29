@@ -32,10 +32,19 @@ body, .app {
 .bookshelf {
   padding: 0 10px 20px;
 }
-
+.bookshelf-items {
+  display: grid;
+  grid-template-columns: repeat(3, 200px);
+  grid-template-rows: repeat(auto-fit, 1fr);
+}
 @media (min-width: 600px) {
   .bookshelf {
     padding: 0 20px 40px;
+  }
+  .bookshelf-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 200px);
+    grid-template-rows: repeat(auto-fit, 1fr);
   }
 }
 

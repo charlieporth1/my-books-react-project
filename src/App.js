@@ -1,8 +1,9 @@
 import React from 'react';
-// import * as BooksAPI from './BooksAPI'
+import * as BooksAPI from './BooksAPI'
 import './App.css';
 import BookItem from './components/BookItems/BookItem';
-import jsonData from './jsons/bookData.json'
+// import jsonData from './jsons/bookData.json'
+import * as util from './util'
 
 class BooksApp extends React.Component<> {
     state = {
@@ -19,14 +20,21 @@ class BooksApp extends React.Component<> {
         showSearchPage: false
     };
 
-    componentWillMount(): void {
-        const books = Array.from(jsonData.books);
-        const booksReading = books.filter((book) => book.status === 'reading');
-        const booksRead = books.filter((book) => book.status === 'read');
-        const booksToRead = books.filter((book) => book.status === 'want_to_read');
-        this.setState({books, booksReading, booksRead, booksToRead});
+    async componentWillMount(): void {
+        await this.getBooks();
     }
 
+    async loadBookShelf(books: []) {
+        const booksReading = books.filter((book) => book.shelf === 'currentlyReading');
+        const booksRead = books.filter((book) => book.shelf === 'read');
+        const booksToRead = books.filter((book) => book.shelf === 'wantToRead');
+        this.setState({books, booksReading, booksRead, booksToRead});
+    }
+    async getBooks() {
+        const books = Array.from(await BooksAPI.getAll()).filter(util.onlyUnique);
+        console.log(books);
+        await this.loadBookShelf(books);
+    }
     render() {
         const {booksRead, booksReading, booksToRead, books, showSearchPage} = this.state;
         return (
@@ -50,10 +58,16 @@ class BooksApp extends React.Component<> {
                             </div>
                         </div>
                         <div className="search-books-results">
-                            <ol className="books-grid">{books.map((book)=> {
-                                return <BookItem title={book.title} author={book.author}
-                                                 bookUrl={book.bookUrl}/>
-                            })}</ol>
+                            <div className="bookshelf-items">
+                                <ol className="books-grid">{books.map((book, i) => {
+                                    return <BookItem key={`${book}-${book.shelf}-${i}`}
+                                                     onUpdate={async ()=> await this.getBooks()}
+                                                     title={book.title}
+                                                     author={util.arrayToString(book.authors, ' and ')}
+                                                     book={book}
+                                                     bookUrl={book.imageLinks.smallThumbnail}/>
+                                })}</ol>
+                            </div>
                         </div>
                     </div>
                 ) : (
@@ -65,24 +79,42 @@ class BooksApp extends React.Component<> {
                             <div>
                                 <div className="bookshelf">
                                     <h2 className="bookshelf-title">Currently Reading</h2>
-                                    {booksReading.map((book) => {
-                                        return <BookItem title={book.title} author={book.author}
-                                                         bookUrl={book.bookUrl}/>;
-                                    })}
+                                    <div className="bookshelf-items">
+                                        {booksReading.map((book, i) => {
+                                            return <BookItem key={`${book}-${book.shelf}-${i}`}
+                                                             onUpdate={async ()=> await this.getBooks()}
+                                                             title={book.title}
+                                                             author={util.arrayToString(book.authors, ' and ')}
+                                                             book={book}
+                                                             bookUrl={book.imageLinks.smallThumbnail}/>;
+                                        })}
+                                    </div>
                                 </div>
                                 <div className="bookshelf">
                                     <h2 className="bookshelf-title">Want to Read</h2>
-                                    {booksToRead.map((book) => {
-                                        return <BookItem title={book.title} author={book.author}
-                                                         bookUrl={book.bookUrl}/>;
-                                    })}
+                                    <div className="bookshelf-items">
+                                        {booksToRead.map((book, i) => {
+                                            return <BookItem key={`${book}-${book.shelf}-${i}`}
+                                                             title={book.title}
+                                                             author={util.arrayToString(book.authors, ' and ')}
+                                                             book={book}
+                                                             onUpdate={async ()=> await this.getBooks()}
+                                                             bookUrl={book.imageLinks.smallThumbnail}/>;
+                                        })}
+                                    </div>
                                 </div>
                                 <div className="bookshelf">
                                     <h2 className="bookshelf-title">Read</h2>
-                                    {booksRead.map((book) => {
-                                        return <BookItem title={book.title} author={book.author}
-                                                         bookUrl={book.bookUrl}/>;
-                                    })}
+                                    <div className="bookshelf-items">
+                                        {booksRead.map((book, i) => {
+                                            return <BookItem key={`${book}-${book.shelf}-${i}`}
+                                                             title={book.title}
+                                                             author={util.arrayToString(book.authors, ' and ')}
+                                                             book={book}
+                                                             onUpdate={async ()=> await this.getBooks()}
+                                                             bookUrl={book.imageLinks.smallThumbnail}/>;
+                                        })}
+                                    </div>
                                 </div>
                             </div>
                         </div>
