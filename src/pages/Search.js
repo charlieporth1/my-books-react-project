@@ -18,7 +18,7 @@ class SearchBooksPage extends React.Component<> {
         booksToRead: [],
         booksReading: [],
         showError: false,
-        errorMessage:'',
+        errorMessage: '',
     };
 
     async componentWillMount(): void {
@@ -39,8 +39,9 @@ class SearchBooksPage extends React.Component<> {
         console.log(books);
         await this.loadBookShelf(books);
     }
-    showError(errorMessage: string = ''):void {
-        this.setState({books:[], errorMessage, showError: true});
+
+    showError(errorMessage: string = ''): void {
+        this.setState({books: [], errorMessage, showError: true});
     }
 
     async queryBooks(query: string = '') {
@@ -48,6 +49,9 @@ class SearchBooksPage extends React.Component<> {
         query = query.toLowerCase().trim();
         const bookQuery: any = await BooksAPI.search(query) || [];
         console.log(bookQuery);
+        if (query.length <= 0) {
+            this.showError("No Results");
+        }
         setTimeout(async () => {
             const errorMessage = bookQuery.error;
             if (errorMessage) {
@@ -77,23 +81,23 @@ class SearchBooksPage extends React.Component<> {
                         </div>
 
                     </div>
-                        <div className="search-books-results">
-                            <ErrorElement style={{alignSelf: 'center'}} showError={showError} errorMessage={errorMessage}/>
-                            <div className="bookshelf-items">
-                                <ol className="books-grid">{books.map((book, i) => {
-                                    if (!book.imageLinks){
-                                        this.showError("Invalid search/query term");
-                                        return undefined;
-                                    }
-                                    return <BookItem key={`${book}-${book.shelf}-${i}`}
-                                                     onUpdate={async () => await this.getBooks()}
-                                                     title={book.title}
-                                                     author={util.arrayToString(book.authors, ' and ')}
-                                                     book={book}
-                                                     bookUrl={book.imageLinks.smallThumbnail}/>
-                                })}</ol>
-                            </div>
+                    <div className="search-books-results">
+                        <ErrorElement style={{alignSelf: 'center'}} showError={showError} errorMessage={errorMessage}/>
+                        <div className="bookshelf-items">
+                            <ol className="books-grid">{books.map((book, i) => {
+                                if (!book.imageLinks) {
+                                    this.showError("Invalid search/query term");
+                                    return undefined;
+                                }
+                                return <BookItem key={`${book}-${book.shelf}-${i}`}
+                                                 onUpdate={async () => await this.getBooks()}
+                                                 title={book.title}
+                                                 author={util.arrayToString(book.authors, ' and ')}
+                                                 book={book}
+                                                 bookUrl={book.imageLinks.smallThumbnail}/>
+                            })}</ol>
                         </div>
+                    </div>
                 </div>
             </div>
         )
