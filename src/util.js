@@ -24,3 +24,7 @@ export const arrayRemove = (self: any[], object: any): any[] => {
 export const arrayRemoveById = (self: any[], object: any): any[] => {
     return self.filter((item) => object.id !== item.id);
 };
+
+export const simpleQueryBooks = (self: any[] = [], queryParam: string, query: string = '') => {
+    return self.filter(book => String(book[queryParam] || '').toString().toLowerCase().includes((query || '').toLowerCase()));
+};
