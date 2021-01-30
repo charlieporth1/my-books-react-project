@@ -39,24 +39,24 @@ class SearchBooksPage extends React.Component<> {
         console.log(books);
         await this.loadBookShelf(books);
     }
-    showEmpty(errorMessage: string = ''):void {
+    showError(errorMessage: string = ''):void {
         this.setState({books:[], errorMessage, showError: true});
     }
 
     async queryBooks(query: string = '') {
         // const {books} = this.state;
-
-        const bookQuery: any = await BooksAPI.search(query.toLowerCase()) || [];
+        query = query.toLowerCase().trim();
+        const bookQuery: any = await BooksAPI.search(query) || [];
         console.log(bookQuery);
         setTimeout(async () => {
             const errorMessage = bookQuery.error;
             if (errorMessage) {
                 console.warn(errorMessage);
-                this.showEmpty(errorMessage);
+                this.showError(errorMessage);
             } else {
                 await this.loadBookShelf(bookQuery);
             }
-        }, 1);
+        }, 3);
     }
 
     render() {
@@ -69,17 +69,22 @@ class SearchBooksPage extends React.Component<> {
                 <div className="search-books">
                     <div className="search-books-bar">
                         <button className="close-search"
-                                onClick={() => this.setState({showSearchPage: false})}>Close
+                                onClick={() => this.props.history.push('/')}>Close
                         </button>
                         <div className="search-books-input-wrapper">
                             <input type="text" placeholder="Search by title or author"
                                    onInputCapture={async (event) => await this.queryBooks(event.target.value)}/>
                         </div>
-                        <ErrorElement style={{alignSelf: 'center'}} showError={showError} errorMessage={errorMessage}/>
+
                     </div>
                         <div className="search-books-results">
+                            <ErrorElement style={{alignSelf: 'center'}} showError={showError} errorMessage={errorMessage}/>
                             <div className="bookshelf-items">
                                 <ol className="books-grid">{books.map((book, i) => {
+                                    if (!book.imageLinks){
+                                        this.showError("Invalid search/query term");
+                                        return undefined;
+                                    }
                                     return <BookItem key={`${book}-${book.shelf}-${i}`}
                                                      onUpdate={async () => await this.getBooks()}
                                                      title={book.title}

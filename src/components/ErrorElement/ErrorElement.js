@@ -1,24 +1,25 @@
 import React from "react";
 import PropTypes from "prop-types";
-import BookItem from "../BookItems/BookItem";
 interface Props {
     showError:boolean;
     errorMessage:string;
+    style?: StyleSheet,
 }
 export default class ErrorElement extends React.Component<Props>{
     render() {
-        const {errorMessage = '', showError = false} = this.props;
+        const {errorMessage = '', showError = false, style} = this.props;
         return (
                 showError ?
-                    <div style={{color: '#F00', textAlign: 'center', alignContent: 'center'}}>
+                    <div style={{color: '#F00', fontSize: 24, textAlign: 'center', alignContent: 'center', ...style}}>
                         Error: {errorMessage}
                     </div>
                     :
-                    <div/>
+                    <div style={{...style}}/>
             )
     }
 }
-BookItem.propTypes = {
+ErrorElement.propTypes = {
     showError: PropTypes.string,
     errorMessage: PropTypes.string,
+    style: PropTypes.object,
 };

@@ -40,12 +40,11 @@ class BooksPage extends React.Component<> {
     }
 
 
-
     render() {
 
         const {booksRead, booksReading, booksToRead, showSearchPage} = this.state;
         return (
-            showSearchPage ? setTimeout(()=> this.props.history.push("/search"), 250)
+            showSearchPage ? setTimeout(() => this.props.history.push("/search"), 50)
                 :
                 <div className="list-books">
                     <div className="list-books-title">
