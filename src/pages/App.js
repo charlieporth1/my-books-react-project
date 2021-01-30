@@ -2,7 +2,7 @@ import React from 'react';
 import * as BooksAPI from '../BooksAPI';
 import './App.css';
 import BookItem from '../components/BookItems/BookItem';
-import * as util from '../util';
+import * as util from '../utils/util';
 
 class BooksPage extends React.Component<> {
     state = {
@@ -26,7 +26,7 @@ class BooksPage extends React.Component<> {
         await this.getBooks();
     }
 
-    async loadBookShelf(books: []): void {
+    async loadBookShelf(books: [] = []): void {
         const booksReading = books.filter((book) => book.shelf === 'currentlyReading');
         const booksRead = books.filter((book) => book.shelf === 'read');
         const booksToRead = books.filter((book) => book.shelf === 'wantToRead');

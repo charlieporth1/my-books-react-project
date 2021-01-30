@@ -1,12 +1,12 @@
-export function onlyUnique(value, index, self) {
+export function onlyUnique(value:any, index:number, self:any[]) {
     return self.indexOf(value) === index;
 }
 
-export function filterNil(value) {
+export function filterNil(value:any) {
     return !!(value);
 }
 
-export const arrayToString = (array, replacementText = ' ') => {
+export const arrayToString = (array:[] = [], replacementText:string = ' ') => {
     const arrayString = array
         .toString()
         .replace('[', '')

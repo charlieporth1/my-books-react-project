@@ -1,8 +1,8 @@
-import {Route, BrowserRouter, Switch, Router} from "react-router-dom";
+import {Route, Switch, Router} from "react-router-dom";
 import BooksPage from "./App";
 import SearchBooksPage from "./Search";
 import React from "react";
-import history from './history';
+import history from '../utils/history';
 class App extends React.Component<> {
 
 

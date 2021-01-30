@@ -2,8 +2,8 @@ import React from 'react';
 import * as BooksAPI from '../BooksAPI';
 import './App.css';
 import BookItem from '../components/BookItems/BookItem';
-import * as util from '../util';
-import BooksApp from "./App";
+import * as util from '../utils/util';
+import ErrorElement from "../components/ErrorElement/ErrorElement";
 
 class SearchBooksPage extends React.Component<> {
     state = {
@@ -17,18 +17,21 @@ class SearchBooksPage extends React.Component<> {
         booksRead: [],
         booksToRead: [],
         booksReading: [],
-        showSearchPage: false
+        showError: false,
+        errorMessage:'',
     };
 
     async componentWillMount(): void {
         await this.getBooks();
     }
 
-    async loadBookShelf(books: []): void {
-        const booksReading = books.filter((book) => book.shelf === 'currentlyReading');
-        const booksRead = books.filter((book) => book.shelf === 'read');
-        const booksToRead = books.filter((book) => book.shelf === 'wantToRead');
-        this.setState({books, booksReading, booksRead, booksToRead});
+    async loadBookShelf(books: [] = []): void {
+        if (books.length > 0) {
+            const booksReading = books.filter((book) => book.shelf === 'currentlyReading');
+            const booksRead = books.filter((book) => book.shelf === 'read');
+            const booksToRead = books.filter((book) => book.shelf === 'wantToRead');
+            this.setState({books, booksReading, booksRead, booksToRead, showError: false});
+        }
     }
 
     async getBooks(): void {
@@ -36,21 +39,31 @@ class SearchBooksPage extends React.Component<> {
         console.log(books);
         await this.loadBookShelf(books);
     }
+    showEmpty(errorMessage: string = ''):void {
+        this.setState({books:[], errorMessage, showError: true});
+    }
 
     async queryBooks(query: string = '') {
-        const {books} = this.state;
-        const searchByTitle: [] = util.simpleQueryBooks(books, 'title', query);
-        const searchByAuthors: [] = util.simpleQueryBooks(books, 'authors', query);
-        const searchByCategory: [] = util.simpleQueryBooks(books, 'categories', query);
-        // const searchByCategory:[] = util.simpleQueryBooks(books, 'categories', query);
+        // const {books} = this.state;
 
-        const bookQuery = [...searchByTitle, ...searchByAuthors, ...searchByCategory].filter(util.onlyUnique);
-        await this.loadBookShelf(bookQuery);
+        const bookQuery: any = await BooksAPI.search(query.toLowerCase()) || [];
+        console.log(bookQuery);
+        setTimeout(async () => {
+            const errorMessage = bookQuery.error;
+            if (errorMessage) {
+                console.warn(errorMessage);
+                this.showEmpty(errorMessage);
+            } else {
+                await this.loadBookShelf(bookQuery);
+            }
+        }, 1);
     }
 
     render() {
 
-        const { books} = this.state;
+        const {books, showError, errorMessage} = this.state;
+        console.debug(errorMessage);
+        console.debug(showError);
         return (
             <div className="app">
                 <div className="search-books">
@@ -59,33 +72,27 @@ class SearchBooksPage extends React.Component<> {
                                 onClick={() => this.setState({showSearchPage: false})}>Close
                         </button>
                         <div className="search-books-input-wrapper">
-                            {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
                             <input type="text" placeholder="Search by title or author"
                                    onInputCapture={async (event) => await this.queryBooks(event.target.value)}/>
                         </div>
+                        <ErrorElement style={{alignSelf: 'center'}} showError={showError} errorMessage={errorMessage}/>
                     </div>
-                    <div className="search-books-results">
-                        <div className="bookshelf-items">
-                            <ol className="books-grid">{books.map((book, i) => {
-                                return <BookItem key={`${book}-${book.shelf}-${i}`}
-                                                 onUpdate={async () => await this.getBooks()}
-                                                 title={book.title}
-                                                 author={util.arrayToString(book.authors, ' and ')}
-                                                 book={book}
-                                                 bookUrl={book.imageLinks.smallThumbnail}/>
-                            })}</ol>
+                        <div className="search-books-results">
+                            <div className="bookshelf-items">
+                                <ol className="books-grid">{books.map((book, i) => {
+                                    return <BookItem key={`${book}-${book.shelf}-${i}`}
+                                                     onUpdate={async () => await this.getBooks()}
+                                                     title={book.title}
+                                                     author={util.arrayToString(book.authors, ' and ')}
+                                                     book={book}
+                                                     bookUrl={book.imageLinks.smallThumbnail}/>
+                                })}</ol>
+                            </div>
                         </div>
-                    </div>
                 </div>
             </div>
         )
     }
 }
+
 export default SearchBooksPage
