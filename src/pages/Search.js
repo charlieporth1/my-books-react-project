@@ -51,6 +51,7 @@ class SearchBooksPage extends React.Component<> {
         console.log(bookQuery);
         if (query.length <= 0) {
             this.showError("No Results");
+            return;
         }
         setTimeout(async () => {
             const errorMessage = bookQuery.error;
@@ -85,17 +86,17 @@ class SearchBooksPage extends React.Component<> {
                         <ErrorElement style={{alignSelf: 'center'}} showError={showError} errorMessage={errorMessage}/>
                         <div className="bookshelf-items">
                             <ol className="books-grid">{books.map((book, i) => {
-                                if (!book.imageLinks) {
-                                    this.showError("Invalid search/query term");
+                                if (book.imageLinks) {
+                                    return <BookItem key={`${book}-${book.shelf}-${i}`}
+                                                     onUpdate={async () => await this.getBooks()}
+                                                     title={book.title}
+                                                     author={util.arrayToString(book.authors, ' and ')}
+                                                     book={book}
+                                                     bookUrl={book.imageLinks.smallThumbnail}/>
+                                } else {
                                     return undefined;
                                 }
-                                return <BookItem key={`${book}-${book.shelf}-${i}`}
-                                                 onUpdate={async () => await this.getBooks()}
-                                                 title={book.title}
-                                                 author={util.arrayToString(book.authors, ' and ')}
-                                                 book={book}
-                                                 bookUrl={book.imageLinks.smallThumbnail}/>
-                            })}</ol>
+                            }).filter(util.filterNil)}</ol>
                         </div>
                     </div>
                 </div>
