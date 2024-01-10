@@ -1,6 +1,7 @@
 # MyReads Project
 
-This is a book library search sample react app
+This is a book library search sample react app.
+Udactiy NanoDegree Intro to React project
 
 ## Create React App
 
